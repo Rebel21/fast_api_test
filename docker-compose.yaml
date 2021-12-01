@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  app:
+    build: ./service
+    ports:
+      - "8000:8000"
+    networks:
+      autotest:
+        ipv4_address: 192.168.0.2
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+  tests:
+    build: ./tests
+    networks:
+      - autotest
+    depends_on:
+      - app
+    command: py.test --host http://192.168.0.2:8000 -v -l .
+networks:
+  autotest:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.0.0/24
+          gateway: 192.168.0.1
